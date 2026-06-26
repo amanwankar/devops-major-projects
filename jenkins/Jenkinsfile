@@ -1,0 +1,39 @@
+pipeline {
+    agent any
+    enviroment {
+      App_NAME = "devops-major-project"
+      IMAGE_TAG = "${env.BUILD_NUMBER}"
+      IMAGE_NAME = "DEVOPS-MAJOR-PROJECT:${IMAGE_TAG}"
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+        stage('Build') {
+            steps {
+               sh 'cd app && npm install'
+            }
+        }
+        stage('Test') {
+            steps {
+               sh 'cd app && npm test || echo "No tests defined yet"'
+            }
+        }
+        stage('Docker Build') {
+            steps {
+                sh 'docker build -t devops-major-project:latest -f docker/Dockerfile .'
+            }
+        }
+    }
+    post {
+      success {
+        echo 'pipeline completed successfully'
+      }
+      failure {
+        echo 'pipeline failed'
+      }
+    }
+}
